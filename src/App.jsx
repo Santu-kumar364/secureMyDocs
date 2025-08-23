@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Authentication from "./webpages/Authentication/Authentication";
+import HomePages from "./webpages/HomePage.jsx/HomePage";
+import { getProfileAction } from "./Redux/Auth/auth.action";
+import { Route, Routes } from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { auth } = useSelector((store) => store);
+  const dispatch = useDispatch();
+  const jwt = localStorage.getItem("jwt");
+  const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
+
+  useEffect(() => {
+    // Only attempt to get profile if we have a JWT but no user data
+    if (jwt && !auth.user && !hasAttemptedAuth) {
+      setHasAttemptedAuth(true);
+      dispatch(getProfileAction(jwt))
+        .catch((error) => {
+          console.error("Failed to get profile:", error);
+          localStorage.removeItem("jwt");
+        });
+    }
+  }, [dispatch, jwt, auth.user, hasAttemptedAuth]);
+
+  // Show loading state while checking authentication
+  if (jwt && !auth.user && !auth.error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div>Loading...</div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Routes>
+      <Route
+        path="/*"
+        element={auth.user ? <HomePages /> : <Authentication />}
+      />
+      {/* REMOVE this route - it's causing the conflict */}
+      {/* <Route path="/" element={<Navigate to={auth.user ? "/dashboard" : "/login"} replace />} /> */}
+    </Routes>
+  );
 }
 
-export default App
+export default App;
