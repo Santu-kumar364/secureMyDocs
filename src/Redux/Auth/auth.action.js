@@ -79,3 +79,6 @@ export const logoutAction = () => (dispatch) => {
   localStorage.removeItem("jwt");
   dispatch({ type: "LOGOUT", payload: "User logged out" }); // Use consistent type
 };
+
+
+ 

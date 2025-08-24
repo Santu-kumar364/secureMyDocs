@@ -9,11 +9,14 @@ import {
   IconButton,
   InputAdornment,
   CircularProgress,
+  Alert,
+  Box,
+  Fade,
+  Zoom
 } from "@mui/material";
-import { Visibility, VisibilityOff, Facebook } from "@mui/icons-material";
+import { Visibility, VisibilityOff, Google, PersonAdd } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
 import { registerUserAction } from "../../Redux/Auth/auth.action";
- 
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -25,13 +28,13 @@ export default function Register() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { auth } = useSelector((store) => store);
+  const { auth } = useSelector((store) => store.auth);
 
   useEffect(() => {
-    if (auth.user) {
+    if (auth?.user) {
       navigate("/dashboard");
     }
-  }, [auth.user, navigate]);
+  }, [auth, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -52,180 +55,347 @@ export default function Register() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-4">
-      <Paper className="w-full max-w-md p-8 rounded-lg" elevation={3}>
-        <div className="flex justify-center mb-6">
-          <Typography variant="h4" className="font-bold">
-            SecureMyDocs
-          </Typography>
-        </div>
-
-        {auth.error && (
-          <Typography
-            variant="body2"
-            align="center"
-            className="mb-4 p-2 bg-red-100 text-red-600 rounded"
+    <Box 
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 2,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundSize: '400% 400%',
+        animation: 'gradientShift 15s ease infinite',
+        '@keyframes gradientShift': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' }
+        }
+      }}
+    >
+      <Zoom in={true} timeout={800}>
+        <Box sx={{ width: '100%', maxWidth: 480 }}>
+          <Paper 
+            elevation={24}
+            sx={{
+              padding: 4,
+              borderRadius: 4,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+              overflow: 'hidden',
+              position: 'relative',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: -7,
+                left: 0,
+                right: 0,
+                height: 6,
+                background: 'linear-gradient(90deg, #667eea, #764ba2)'
+              }
+            }}
           >
-            {auth.error.message || "Registration failed"}
-          </Typography>
-        )}
+            {/* Decorative elements */}
+            <Box 
+              sx={{
+                position: 'absolute',
+                top: -20,
+                right: -20,
+                width: 120,
+                height: 120,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+                zIndex: 0
+              }}
+            />
+            
+            <Box 
+              sx={{
+                position: 'absolute',
+                bottom: -30,
+                left: -30,
+                width: 100,
+                height: 100,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%)',
+                zIndex: 0
+              }}
+            />
 
-        {error && (
-          <Typography
-            variant="body2"
-            align="center"
-            className="mb-4 p-2 bg-red-100 text-red-600 rounded"
+            <Box position="relative" zIndex={1}>
+              {/* Header */}
+              <Box textAlign="center" mb={3}>
+                <Box 
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 70,
+                    height: 70,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    mb: 2
+                  }}
+                >
+                  <PersonAdd sx={{ fontSize: 32 }} />
+                </Box>
+                <Typography 
+                  variant="h4" 
+                  component="h1" 
+                  gutterBottom
+                  sx={{ 
+                    fontWeight: 700,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    backgroundClip: 'text',
+                    textFillColor: 'transparent',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}
+                >
+                  Create Account
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Join SecureMyDocs to get started
+                </Typography>
+              </Box>
+
+              <Fade in={!!error} timeout={500}>
+                <Box>
+                  {error && (
+                    <Alert 
+                      severity="error" 
+                      sx={{ 
+                        mb: 3, 
+                        borderRadius: 2,
+                        boxShadow: '0 4px 12px rgba(244, 67, 54, 0.1)'
+                      }}
+                    >
+                      {error}
+                    </Alert>
+                  )}
+                </Box>
+              </Fade>
+
+              <Fade in={!!auth?.error} timeout={500}>
+                <Box>
+                  {auth?.error && (
+                    <Alert 
+                      severity="error" 
+                      sx={{ 
+                        mb: 3, 
+                        borderRadius: 2,
+                        boxShadow: '0 4px 12px rgba(244, 67, 54, 0.1)'
+                      }}
+                    >
+                      {auth.error.message || "Registration failed"}
+                    </Alert>
+                  )}
+                </Box>
+              </Fade>
+
+              <Box 
+                component="form" 
+                onSubmit={handleSubmit} 
+                sx={{ 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2.5
+                }}
+              >
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    variant="outlined"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        backgroundColor: 'white',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.2)'
+                        },
+                        '&.Mui-focused': {
+                          boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.5)'
+                        }
+                      }
+                    }}
+                  />
+
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    variant="outlined"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: 2,
+                        backgroundColor: 'white',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.2)'
+                        },
+                        '&.Mui-focused': {
+                          boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.5)'
+                        }
+                      }
+                    }}
+                  />
+                </Box>
+
+                <TextField
+                  fullWidth
+                  label="Email Address"
+                  variant="outlined"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.2)'
+                      },
+                      '&.Mui-focused': {
+                        boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.5)'
+                      }
+                    }
+                  }}
+                />
+
+                <TextField
+                  fullWidth
+                  label="Password"
+                  variant="outlined"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: 2,
+                      backgroundColor: 'white',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.2)'
+                      },
+                      '&.Mui-focused': {
+                        boxShadow: '0 0 0 2px rgba(102, 126, 234, 0.5)'
+                      }
+                    }
+                  }}
+                />
+
+                <Button
+                  fullWidth
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  disabled={loading || !email || !firstName || !lastName || !password}
+                  sx={{ 
+                    py: 1.8,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontSize: '1.05rem',
+                    fontWeight: 600,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      boxShadow: '0 8px 22px rgba(102, 126, 234, 0.5)',
+                      transform: 'translateY(-2px)',
+                      background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)'
+                    },
+                    '&:active': {
+                      transform: 'translateY(0)'
+                    }
+                  }}
+                >
+                  {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Create Account'}
+                </Button>
+              </Box>
+
+              <Box sx={{ textAlign: 'center', my: 3 }}>
+                <Divider sx={{ mb: 3 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    OR
+                  </Typography>
+                </Divider>
+
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<Google color="primary" />}
+                  sx={{ 
+                    py: 1.5,
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    fontWeight: 500,
+                    mb: 2
+                  }}
+                >
+                  Sign up with Google
+                </Button>
+              </Box>
+            </Box>
+          </Paper>
+
+          {/* ADDED: Separate Paper component for login redirect with gap */}
+          <Paper
+            elevation={8}
+            sx={{
+              mt: 2, // This creates the gap between the two papers
+              p: 3,
+              borderRadius: 3,
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(10px)',
+              textAlign: 'center'
+            }}
           >
-            {error}
-          </Typography>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <TextField
-            fullWidth
-            label="First Name"
-            variant="outlined"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            sx={{
-              mb: 3,
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "white",
-                borderRadius: "8px",
-              },
-              "& .MuiInputLabel-root": {
-                backgroundColor: "white",
-                padding: "0 4px",
-                borderRadius: "4px",
-              },
-            }}
-          />
-
-          <TextField
-            fullWidth
-            label="Last Name"
-            variant="outlined"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-            sx={{
-              mb: 3,
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "white",
-                borderRadius: "8px",
-              },
-              "& .MuiInputLabel-root": {
-                backgroundColor: "white",
-                padding: "0 4px",
-                borderRadius: "4px",
-              },
-            }}
-          />
-
-          <TextField
-            fullWidth
-            label="Email"
-            variant="outlined"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "white",
-                borderRadius: "8px",
-              },
-              "& .MuiInputLabel-root": {
-                backgroundColor: "white",
-                padding: "0 4px",
-                borderRadius: "4px",
-              },
-              mb: 3,
-            }}
-          />
-
-          <TextField
-            fullWidth
-            label="Password"
-            variant="outlined"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                backgroundColor: "white",
-                borderRadius: "8px",
-              },
-              "& .MuiInputLabel-root": {
-                backgroundColor: "white",
-                padding: "0 4px",
-                borderRadius: "4px",
-              },
-              mb: 3,
-            }}
-          />
-
-          <Button
-            fullWidth
-            type="submit"
-            variant="contained"
-            color="primary"
-            size="large"
-            disabled={loading || !email || !firstName || !lastName || !password}
-            className="h-12 font-bold mt-2 rounded-lg"
-            sx={{ borderRadius: "8px" }}
-          >
-            {loading ? <CircularProgress size={24} /> : "Sign Up"}
-          </Button>
-
-          <div className="flex items-center justify-center space-x-2 my-4">
-            <Divider className="flex-1" />
-            <Typography variant="body2" color="textSecondary">
-              OR
+            <Typography variant="body2">
+              Already have an account?{' '}
+              <Button
+                component={Link}
+                to="/login"
+                variant="text"
+                color="primary"
+                sx={{ 
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: 'inherit',
+                  p: 0,
+                  minWidth: 'auto'
+                }}
+              >
+                Log in
+              </Button>
             </Typography>
-            <Divider className="flex-1" />
-          </div>
-
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<Facebook color="primary" />}
-            className="h-12 text-sm font-bold rounded-lg"
-            sx={{ borderRadius: "8px" }}
-          >
-            Sign up with Facebook
-          </Button>
-        </form>
-      </Paper>
-
-      <Paper
-        className="w-full max-w-md mt-4 p-6 text-center rounded-lg"
-        elevation={3}
-      >
-        <Typography variant="body2">
-          Have an account?{" "}
-          <Link
-            to="/login"
-            className="text-blue-500 font-bold hover:text-blue-700"
-          >
-            Log in
-          </Link>
-        </Typography>
-      </Paper>
-    </div>
+          </Paper>
+        </Box>
+      </Zoom>
+    </Box>
   );
 }

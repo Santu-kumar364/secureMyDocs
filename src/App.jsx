@@ -6,7 +6,7 @@ import { getProfileAction } from "./Redux/Auth/auth.action";
 import { Route, Routes } from "react-router-dom";
 
 function App() {
-  const { auth } = useSelector((store) => store);
+  const auth = useSelector((store) => store.auth);
   const dispatch = useDispatch();
   const jwt = localStorage.getItem("jwt");
   const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
@@ -38,8 +38,7 @@ function App() {
         path="/*"
         element={auth.user ? <HomePages /> : <Authentication />}
       />
-      {/* REMOVE this route - it's causing the conflict */}
-      {/* <Route path="/" element={<Navigate to={auth.user ? "/dashboard" : "/login"} replace />} /> */}
+       
     </Routes>
   );
 }

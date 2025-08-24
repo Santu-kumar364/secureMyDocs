@@ -344,8 +344,6 @@ const Dashboard = () => {
                 </ListItem>
               ))}
             </List>
-
-            {/* Profile Section in Sidebar */}
             <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                 <Avatar
@@ -362,7 +360,15 @@ const Dashboard = () => {
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
                     {auth.user?.firstName} {auth.user?.lastName}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{
+                      maxWidth: "20ch",
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                    }}
+                  >
                     {auth.user?.email}
                   </Typography>
                 </Box>
@@ -502,8 +508,7 @@ const Dashboard = () => {
             </Grid>
           </Box>
 
-          <Grid container spacing={3} sx={{ mb: 2}}>
-            
+          <Grid container spacing={3} sx={{ mb: 2 }}>
             <Grid item xs={12}>
               <Paper
                 elevation={2}
@@ -728,15 +733,22 @@ const Dashboard = () => {
               ))}
             </List>
 
-            {/* Profile Section in Mobile Sidebar */}
             <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  mb: 1,
+                  ml: -2,
+                  mr: -3,
+                }}
+              >
                 <Avatar
                   sx={{
                     width: 40,
                     height: 40,
                     bgcolor: "primary.main",
-                    mr: 2,
+                    mr: 1.5,
                   }}
                 >
                   {auth.user?.firstName?.charAt(0)}
@@ -745,7 +757,15 @@ const Dashboard = () => {
                   <Typography variant="body1" sx={{ fontWeight: 500 }}>
                     {auth.user?.firstName} {auth.user?.lastName}
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{
+                      maxWidth: "20ch",
+                      wordBreak: "break-word",
+                      overflowWrap: "break-word",
+                    }}
+                  >
                     {auth.user?.email}
                   </Typography>
                 </Box>
