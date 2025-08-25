@@ -53,6 +53,7 @@ import FilePreview from "./FilePreview";
 import Alert from "@mui/material/Alert";
 import OTPModal from "./OTPModal";
 import { api } from "../../config/Api";
+import ShareLinkModal from "./ShareLinkModal";
 
 const FileTable = ({
   files = [],
@@ -75,9 +76,11 @@ const FileTable = ({
   const [currentFileForOtp, setCurrentFileForOtp] = useState(null);
   const [isCheckingOtp, setIsCheckingOtp] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [actionType, setActionType] = useState(""); // 'view', 'download', 'delete'
+  const [actionType, setActionType] = useState(""); // 'view', 'download', 'delete', 'enable_otp', 'disable_otp'
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [fileToDelete, setFileToDelete] = useState(null);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [currentFileForSharing, setCurrentFileForSharing] = useState(null);
 
   const showSnackbar = (message, severity) => {
     setSnackbarMessage(message);
@@ -103,9 +106,9 @@ const FileTable = ({
       if (response.data.otpProtected) {
         setCurrentFileForOtp(file);
         setActionType(action);
-        setOtpModalOpen(true); // Open modal immediately
+        setOtpModalOpen(true);
 
-        // 🔥 Generate and send OTP immediately
+        // Generate and send OTP immediately
         try {
           await api.post(`/api/otp/generate/${file.id}`);
           showSnackbar("OTP sent to your email", "info");
@@ -125,6 +128,28 @@ const FileTable = ({
     }
   };
 
+  const handleToggleOtpProtection = async (postId, enable) => {
+    try {
+      // First generate OTP for the toggle operation
+      const generateResponse = await api.post(
+        `/api/secure/posts/${postId}/generate-otp-toggle`
+      );
+
+      if (generateResponse.status === 200) {
+        // Show OTP input modal
+        const file = files.find((f) => f.id === postId);
+        setCurrentFileForOtp(file);
+        setActionType(enable ? "enable_otp" : "disable_otp");
+        setOtpModalOpen(true);
+
+        showSnackbar("OTP sent to your email for verification", "info");
+      }
+    } catch (error) {
+      console.error("Failed to generate OTP for toggle:", error);
+      showSnackbar("Failed to initiate OTP protection change", "error");
+    }
+  };
+
   const executeAction = (file, action) => {
     switch (action) {
       case "view":
@@ -138,6 +163,10 @@ const FileTable = ({
         setFileToDelete(file);
         setDeleteConfirmOpen(true);
         break;
+      case "enable_otp":
+      case "disable_otp":
+        // These are handled in handleValidateOTP
+        break;
       default:
         break;
     }
@@ -146,33 +175,60 @@ const FileTable = ({
   const handleValidateOTP = async (otp) => {
     try {
       setIsProcessing(true);
-      const response = await api.post(
-        `/api/otp/validate/${currentFileForOtp.id}`,
-        { code: otp }
-      );
 
-      // Handle both response formats
-      const isValid = response.data.valid || response.data.status === "success";
+      if (actionType === "enable_otp" || actionType === "disable_otp") {
+        // This is for OTP protection toggle
+        const enable = actionType === "enable_otp";
+        const response = await api.post(
+          `/api/secure/posts/${currentFileForOtp.id}/toggle-otp?enable=${enable}`,
+          { otpCode: otp }
+        );
 
-      if (isValid) {
-        showSnackbar("OTP verified successfully", "success");
-        setOtpModalOpen(false);
-
-        // If the action was delete, show confirmation dialog
-        if (actionType === "delete") {
-          setFileToDelete(currentFileForOtp);
-          setDeleteConfirmOpen(true);
-        } else {
-          executeAction(currentFileForOtp, actionType);
+        if (response.status === 200) {
+          showSnackbar(
+            `OTP protection ${enable ? "enabled" : "disabled"} successfully`,
+            "success"
+          );
+          // Refresh the file list to get updated OTP status
+          window.location.reload();
+          setOtpModalOpen(false);
+          return true;
         }
-        return true;
       } else {
-        const errorMsg = response.data.message || "Invalid OTP";
-        showSnackbar(errorMsg, "error");
-        return false;
+        // Handle file access OTP validation
+        const response = await api.post(
+          `/api/otp/validate/${currentFileForOtp.id}`,
+          { code: otp }
+        );
+
+        // Handle both response formats
+        const isValid =
+          response.data.valid || response.data.status === "success";
+
+        if (isValid) {
+          showSnackbar("OTP verified successfully", "success");
+          setOtpModalOpen(false);
+
+          // If the action was delete, show confirmation dialog
+          if (actionType === "delete") {
+            setFileToDelete(currentFileForOtp);
+            setDeleteConfirmOpen(true);
+          } else {
+            executeAction(currentFileForOtp, actionType);
+          }
+          return true;
+        } else {
+          const errorMsg = response.data.message || "Invalid OTP";
+          showSnackbar(errorMsg, "error");
+          return false;
+        }
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.message || "Invalid OTP";
+      const errorMsg =
+        error.response?.data?.message ||
+        (actionType.includes("otp")
+          ? "Failed to update OTP protection"
+          : "Invalid OTP");
       showSnackbar(errorMsg, "error");
       throw new Error(errorMsg);
     } finally {
@@ -183,15 +239,29 @@ const FileTable = ({
   const handleResendOTP = async () => {
     try {
       setIsProcessing(true);
-      const response = await api.post(
-        `/api/otp/generate/${currentFileForOtp.id}`
-      );
 
-      if (response.status === 200) {
-        showSnackbar("OTP resent to your email", "success");
-        return true;
-      } else if (response.status === 429) {
-        showSnackbar("Please wait before requesting another OTP", "warning");
+      if (actionType === "enable_otp" || actionType === "disable_otp") {
+        // Resend OTP for protection toggle
+        const response = await api.post(
+          `/api/secure/posts/${currentFileForOtp.id}/generate-otp-toggle`
+        );
+
+        if (response.status === 200) {
+          showSnackbar("OTP resent to your email", "success");
+          return true;
+        }
+      } else {
+        // Resend OTP for file access
+        const response = await api.post(
+          `/api/otp/generate/${currentFileForOtp.id}`
+        );
+
+        if (response.status === 200) {
+          showSnackbar("OTP resent to your email", "success");
+          return true;
+        } else if (response.status === 429) {
+          showSnackbar("Please wait before requesting another OTP", "warning");
+        }
       }
       return false;
     } catch (error) {
@@ -263,18 +333,63 @@ const FileTable = ({
     );
   };
 
-  // Download file
-  const downloadFile = (file) => {
-    const link = document.createElement("a");
-    link.href = file.image || file.document || file.video;
-    link.download =
-      file.documentName || file.imageName || file.videoName || "download";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showSnackbar("File downloaded successfully", "success");
-  };
+  const downloadFile = async (file) => {
+    try {
+      setIsProcessing(true);
 
+      // Get the file URL from the file object
+      const fileUrl = file.image || file.document || file.video;
+      const fileName =
+        file.documentName || file.imageName || file.videoName || "download";
+
+      // For Cloudinary documents, we need to use a special download URL format
+      let downloadUrl = fileUrl;
+
+      // Check if this is a Cloudinary URL and it's a document (not image/video)
+      if (
+        fileUrl.includes("cloudinary.com") &&
+        (file.document || (!file.image && !file.video))
+      ) {
+        // Convert Cloudinary URL to download format
+        // Example: https://res.cloudinary.com/xxx/raw/upload/v123/file.pdf
+        // Becomes: https://res.cloudinary.com/xxx/raw/upload/fl_attachment/v123/file.pdf
+        downloadUrl = fileUrl.replace("/upload/", "/upload/fl_attachment/");
+      }
+
+      // Fetch the file
+      const response = await fetch(downloadUrl);
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch file: ${response.status} ${response.statusText}`
+        );
+      }
+
+      // Convert the response to a blob
+      const blob = await response.blob();
+
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+
+      // Trigger the download
+      link.click();
+
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+
+      showSnackbar("File downloaded successfully", "success");
+    } catch (error) {
+      console.error("Download error:", error);
+      showSnackbar("Failed to download file", "error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   // Delete single file
   const handleDelete = async (fileId) => {
     try {
@@ -448,6 +563,11 @@ const FileTable = ({
     if (!name) return "Untitled";
     const limit = mode === "grid" ? 10 : 25;
     return name.length > limit ? `${name.substring(0, limit)}...` : name;
+  };
+
+  const handleShare = (file) => {
+    setCurrentFileForSharing(file);
+    setShareModalOpen(true);
   };
 
   return (
@@ -739,7 +859,10 @@ const FileTable = ({
         <MenuItem
           onClick={() => {
             handleMenuClose();
-            onToggleOtpProtection(currentFile.id, !currentFile.otpProtected);
+            handleToggleOtpProtection(
+              currentFile.id,
+              !currentFile.otpProtected
+            );
           }}
         >
           <ListItemIcon>
@@ -764,7 +887,12 @@ const FileTable = ({
           </ListItemIcon>
           <ListItemText>Download</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleMenuClose}>
+        <MenuItem
+          onClick={() => {
+            handleMenuClose();
+            currentFile && handleShare(currentFile);
+          }}
+        >
           <ListItemIcon>
             <Share fontSize="small" />
           </ListItemIcon>
@@ -794,6 +922,7 @@ const FileTable = ({
             setPreviewOpen(false);
           }
         }}
+        userEmail={userEmail}
       />
 
       {/* OTP verification modal */}
@@ -803,6 +932,13 @@ const FileTable = ({
         onValidate={handleValidateOTP}
         onResend={handleResendOTP}
         email={userEmail}
+        actionType={actionType}
+      />
+
+      <ShareLinkModal
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        file={currentFileForSharing}
       />
 
       {/* Delete confirmation dialog */}

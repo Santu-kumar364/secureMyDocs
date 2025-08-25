@@ -4,6 +4,8 @@ import Authentication from "./webpages/Authentication/Authentication";
 import HomePages from "./webpages/HomePage.jsx/HomePage";
 import { getProfileAction } from "./Redux/Auth/auth.action";
 import { Route, Routes } from "react-router-dom";
+import SharedFileAccess from "./components/Document/SharedFileAccess";
+ 
 
 function App() {
   const auth = useSelector((store) => store.auth);
@@ -34,11 +36,14 @@ function App() {
 
   return (
     <Routes>
+       
+      <Route path="/shared/:token" element={<SharedFileAccess />} />
+      
+      {/* Protected routes for authenticated users */}
       <Route
         path="/*"
         element={auth.user ? <HomePages /> : <Authentication />}
       />
-       
     </Routes>
   );
 }
