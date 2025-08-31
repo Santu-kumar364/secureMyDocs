@@ -3,196 +3,30 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
-  Typography,
   Divider,
   Box,
   IconButton,
   Tooltip,
-  Snackbar,
-  Alert,
+  Typography,
   CircularProgress,
   Backdrop,
 } from "@mui/material";
 import {
   Close,
-  Download,
-  Share,
   InsertDriveFile,
   Image as ImageIcon,
   PictureAsPdf,
   Description,
   VideoFile,
-  Delete,
 } from "@mui/icons-material";
-import OTPModal from "./OTPModal";
-import { api } from "../../config/Api";
-import ShareLinkModal from "./ShareLinkModal";
 
-const FilePreview = ({ open, file, onClose, onDelete, userEmail }) => {
-  const [otpModalOpen, setOtpModalOpen] = useState(false);
-  const [actionType, setActionType] = useState("");
+const FilePreview = ({ open, file, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
-  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   if (!file) return null;
 
   const fileName =
     file.documentName || file.imageName || file.videoName || "Untitled";
-
-  const showSnackbar = (message, severity) => {
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
-  };
-
-  const handlePreviewAction = async (action) => {
-    try {
-      setIsProcessing(true);
-
-      // Check if file is OTP protected
-      const response = await api.get(`/api/posts/${file.id}/otp-status`);
-
-      if (response.data.otpProtected) {
-        setActionType(action);
-        setOtpModalOpen(true);
-
-        // Generate OTP immediately
-        try {
-          await api.post(`/api/otp/generate/${file.id}`);
-          showSnackbar("OTP sent to your email", "info");
-        } catch (error) {
-          console.error("OTP generation error:", error);
-          showSnackbar("Failed to send OTP", "error");
-        }
-      } else {
-        executeAction(action);
-      }
-    } catch (error) {
-      console.error("Error checking OTP status:", error);
-      showSnackbar("Error checking file access", "error");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const executeAction = (action) => {
-    switch (action) {
-      case "download":
-        downloadFile();
-        break;
-      case "delete":
-        handleDelete();
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handleValidateOTP = async (otp) => {
-    try {
-      setIsProcessing(true);
-      const response = await api.post(`/api/otp/validate/${file.id}`, {
-        code: otp,
-      });
-
-      const isValid = response.data.valid || response.data.status === "success";
-
-      if (isValid) {
-        showSnackbar("OTP verified successfully", "success");
-        setOtpModalOpen(false);
-        executeAction(actionType);
-        return true;
-      } else {
-        const errorMsg = response.data.message || "Invalid OTP";
-        showSnackbar(errorMsg, "error");
-        return false;
-      }
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || "Invalid OTP";
-      showSnackbar(errorMsg, "error");
-      throw new Error(errorMsg);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleResendOTP = async () => {
-    try {
-      setIsProcessing(true);
-      await api.post(`/api/otp/generate/${file.id}`);
-      showSnackbar("OTP resent to your email", "success");
-      return true;
-    } catch (error) {
-      const errorMsg = error.response?.data?.message || "Failed to resend OTP";
-      showSnackbar(errorMsg, "error");
-      throw new Error(errorMsg);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const downloadFile = async () => {
-    try {
-      setIsProcessing(true);
-
-      // Get the file URL
-      let downloadUrl = file.url;
-
-      // For Cloudinary documents, we need to use a special download URL format
-      if (
-        file.url.includes("cloudinary.com") &&
-        (file.type === "pdf" || file.type === "document")
-      ) {
-        // Convert Cloudinary URL to download format
-        downloadUrl = file.url.replace("/upload/", "/upload/fl_attachment/");
-      }
-
-      // Fetch the file
-      const response = await fetch(downloadUrl);
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch file: ${response.status} ${response.statusText}`
-        );
-      }
-
-      // Convert the response to a blob
-      const blob = await response.blob();
-
-      // Create a download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-
-      // Trigger the download
-      link.click();
-
-      // Clean up
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(link);
-
-      showSnackbar("File downloaded successfully", "success");
-    } catch (error) {
-      console.error("Download error:", error);
-      showSnackbar("Failed to download file", "error");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleDelete = () => {
-    if (window.confirm("Are you sure you want to delete this file?")) {
-      onDelete();
-      onClose();
-    }
-  };
 
   const getFileIcon = () => {
     switch (file.type) {
@@ -279,15 +113,11 @@ const FilePreview = ({ open, file, onClose, onDelete, userEmail }) => {
               No preview available
             </Typography>
             <Typography color="text.secondary">
-              Double-click to download and open
+              This file type cannot be previewed
             </Typography>
           </Box>
         );
     }
-  };
-
-  const handleShare = () => {
-    setShareModalOpen(true);
   };
 
   return (
@@ -339,81 +169,7 @@ const FilePreview = ({ open, file, onClose, onDelete, userEmail }) => {
         >
           {renderPreview()}
         </DialogContent>
-
-        <Divider />
-
-        <DialogActions
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            px: 3,
-            py: 2,
-          }}
-        >
-          <Box>
-            <Button
-              startIcon={<Delete />}
-              variant="outlined"
-              color="error"
-              sx={{ mr: 2 }}
-              onClick={() => handlePreviewAction("delete")}
-              disabled={isProcessing}
-            >
-              Delete
-            </Button>
-            <Button
-              startIcon={<Download />}
-              variant="outlined"
-              sx={{ mr: 2 }}
-              onClick={() => handlePreviewAction("download")}
-              disabled={isProcessing}
-            >
-              Download
-            </Button>
-            <Button
-              startIcon={<Share />}
-              variant="contained"
-              color="primary"
-              onClick={handleShare}
-              disabled={isProcessing}
-            >
-              Share
-            </Button>
-          </Box>
-        </DialogActions>
       </Dialog>
-
-      {/* OTP Modal */}
-      <OTPModal
-        open={otpModalOpen}
-        handleClose={() => !isProcessing && setOtpModalOpen(false)}
-        onValidate={handleValidateOTP}
-        onResend={handleResendOTP}
-        email={userEmail}
-      />
-
-      <ShareLinkModal
-        open={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
-        file={file}
-      />
-
-      {/* Snackbar for notifications */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
 
       {/* Loading backdrop */}
       <Backdrop

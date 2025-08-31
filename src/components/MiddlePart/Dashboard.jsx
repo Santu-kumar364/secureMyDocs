@@ -15,7 +15,6 @@ import {
   ListItemIcon,
   ListItemButton,
   Chip,
-  Button,
   CircularProgress,
   Alert,
   useTheme,
@@ -37,13 +36,12 @@ import {
   CloudUpload,
   Lock,
   FolderOpen,
-  Security,
-  Menu as MenuIcon,
   Dashboard as DashboardIcon,
   Folder as FolderIcon,
   Logout,
   MoreVert,
 } from "@mui/icons-material";
+import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate } from "react-router-dom";
 import CreatePost from "../CreatePost/CreatePost";
 import { logoutAction } from "../../Redux/Auth/auth.action";
@@ -578,52 +576,6 @@ const Dashboard = () => {
               </Paper>
             </Grid>
           </Grid>
-
-          {/* Quick Actions */}
-          <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-            <Typography
-              variant="h6"
-              gutterBottom
-              sx={{ fontWeight: 600, mb: 3 }}
-            >
-              Quick Actions
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={4}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  startIcon={<CloudUpload />}
-                  onClick={() => setOpenCreatePost(true)}
-                  sx={{ py: 1.5, borderRadius: 1, fontWeight: 600 }}
-                >
-                  Upload File
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<FolderOpen />}
-                  onClick={() => navigate("/documents")}
-                  sx={{ py: 1.5, borderRadius: 1, fontWeight: 600 }}
-                >
-                  View Documents
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={6} md={4}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<History />}
-                  onClick={() => navigate("/audit-logs")}
-                  sx={{ py: 1.5, borderRadius: 1, fontWeight: 600 }}
-                >
-                  Audit Logs
-                </Button>
-              </Grid>
-            </Grid>
-          </Paper>
 
           {openCreatePost && (
             <CreatePost

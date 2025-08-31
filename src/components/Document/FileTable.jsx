@@ -345,11 +345,11 @@ const FileTable = ({
       // For Cloudinary documents, we need to use a special download URL format
       let downloadUrl = fileUrl;
 
-      // Check if this is a Cloudinary URL and it's a document (not image/video)
-      if (
-        fileUrl.includes("cloudinary.com") &&
-        (file.document || (!file.image && !file.video))
-      ) {
+      // Check if this is a Cloudinary URL and it's a document
+      const isCloudinaryUrl = fileUrl.includes("cloudinary.com");
+      const isDocument = file.document && !file.image && !file.video;
+
+      if (isCloudinaryUrl && isDocument) {
         // Convert Cloudinary URL to download format
         // Example: https://res.cloudinary.com/xxx/raw/upload/v123/file.pdf
         // Becomes: https://res.cloudinary.com/xxx/raw/upload/fl_attachment/v123/file.pdf
@@ -389,22 +389,6 @@ const FileTable = ({
     } finally {
       setIsProcessing(false);
     }
-  };
-  // Delete single file
-  const handleDelete = async (fileId) => {
-    try {
-      await onDelete(fileId);
-      setSelected(selected.filter((id) => id !== fileId));
-      showSnackbar("File deleted successfully", "success");
-    } catch (error) {
-      const errorMsg =
-        error.response?.data?.message ||
-        "Failed to delete file. Please try again.";
-      showSnackbar(errorMsg, "error");
-      console.error("Delete error:", error);
-    }
-    handleMenuClose();
-    setDeleteConfirmOpen(false);
   };
 
   // Delete multiple selected files
@@ -916,13 +900,6 @@ const FileTable = ({
         open={previewOpen}
         file={currentFile}
         onClose={() => setPreviewOpen(false)}
-        onDelete={() => {
-          if (currentFile?.id) {
-            handleDelete(currentFile.id);
-            setPreviewOpen(false);
-          }
-        }}
-        userEmail={userEmail}
       />
 
       {/* OTP verification modal */}
@@ -967,7 +944,13 @@ const FileTable = ({
         <DialogActions>
           <Button onClick={() => setDeleteConfirmOpen(false)}>Cancel</Button>
           <Button
-            onClick={() => fileToDelete && handleDelete(fileToDelete.id)}
+            onClick={() => {
+              if (fileToDelete) {
+                // Use the onDelete prop instead of handleDelete
+                onDelete(fileToDelete.id);
+                setDeleteConfirmOpen(false);
+              }
+            }}
             color="error"
             variant="contained"
           >

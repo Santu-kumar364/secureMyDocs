@@ -5,7 +5,6 @@ import {
   Button,
   Typography,
   Paper,
-  Divider,
   IconButton,
   InputAdornment,
   CircularProgress,
@@ -14,7 +13,7 @@ import {
   Fade,
   Zoom
 } from "@mui/material";
-import { Visibility, VisibilityOff, Google, PersonAdd } from "@mui/icons-material";
+import { Visibility, VisibilityOff, PersonAdd } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
 import { registerUserAction } from "../../Redux/Auth/auth.action";
 
@@ -336,38 +335,14 @@ export default function Register() {
                   {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Create Account'}
                 </Button>
               </Box>
-
-              <Box sx={{ textAlign: 'center', my: 3 }}>
-                <Divider sx={{ mb: 3 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    OR
-                  </Typography>
-                </Divider>
-
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<Google color="primary" />}
-                  sx={{ 
-                    py: 1.5,
-                    borderRadius: 2,
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    fontWeight: 500,
-                    mb: 2
-                  }}
-                >
-                  Sign up with Google
-                </Button>
-              </Box>
             </Box>
           </Paper>
 
-          {/* ADDED: Separate Paper component for login redirect with gap */}
+          {/* Login redirect section */}
           <Paper
             elevation={8}
             sx={{
-              mt: 2, // This creates the gap between the two papers
+              mt: 2,
               p: 3,
               borderRadius: 3,
               background: 'rgba(255, 255, 255, 0.9)',

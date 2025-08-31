@@ -14,7 +14,7 @@ import {
   Fade,
   Zoom
 } from "@mui/material";
-import { Visibility, VisibilityOff, Google, Login as LoginIcon } from "@mui/icons-material";
+import { Visibility, VisibilityOff, Login as LoginIcon } from "@mui/icons-material";
 import { useSelector, useDispatch } from "react-redux";
 import { loginUserAction } from "../../Redux/Auth/auth.action";
 
@@ -291,21 +291,7 @@ export default function Login() {
                   </Typography>
                 </Divider>
 
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<Google color="primary" />}
-                  sx={{ 
-                    py: 1.5,
-                    borderRadius: 2,
-                    textTransform: 'none',
-                    fontSize: '1rem',
-                    fontWeight: 500,
-                    mb: 2
-                  }}
-                >
-                  Continue with Google
-                </Button>
+                {/* Removed Google Login Button */}
               </Box>
 
               <Box sx={{ textAlign: 'center', mb: 2 }}>

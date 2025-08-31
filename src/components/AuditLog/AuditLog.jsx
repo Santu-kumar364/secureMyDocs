@@ -38,7 +38,6 @@ import {
   Refresh,
 } from "@mui/icons-material";
 import ErrorBoundary from "../Document/ErrorBoudary";
- 
 
 const AuditLog = () => {
   const dispatch = useDispatch();
@@ -63,42 +62,14 @@ const AuditLog = () => {
   const [actionFilter, setActionFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("");
 
-  // Filter files from posts (same logic as DocumentPage)
-  const files = useMemo(() => {
-    try {
-      return (
-        posts?.filter((post) => post?.document || post?.image || post?.video) ||
-        []
-      );
-    } catch (error) {
-      console.error("Error filtering posts:", error);
-      return [];
-    }
-  }, [posts]);
-
-  // Function to get actual file name from post data
-  const getFileName = (post) => {
-    if (!post) return "N/A";
-    return post.documentName || post.imageName || post.videoName || "N/A";
-  };
-
-  // Function to get file type from post data
-  const getFileType = (post) => {
-    if (!post) return "Unknown";
-    if (post.documentName) return "Document";
-    if (post.imageName) return "Image";
-    if (post.videoName) return "Video";
-    return "Unknown";
-  };
-
-  // Function to find post by document name (from audit log)
-  const findPostByDocumentName = (documentName) => {
-    if (!documentName) return null;
-    return files.find(
-      (post) =>
-        post.documentName === documentName ||
-        post.imageName === documentName ||
-        post.videoName === documentName
+  const getFileName = (log) => {
+    if (!log) return "N/A";
+    return (
+      log.fileName || // direct field
+      log.documentName ||
+      log.imageName ||
+      log.videoName ||
+      "N/A"
     );
   };
 
@@ -146,18 +117,18 @@ const AuditLog = () => {
     }
   }, [logs]);
 
-  // Enhanced logs with post data
+  // Enhanced logs with file information
   const enhancedLogs = useMemo(() => {
     return safeLogs.map((log) => {
-      const relatedPost = findPostByDocumentName(log.documentName);
+      const fileName = getFileName(log);
+      
       return {
         ...log,
-        relatedPost,
-        fileName: relatedPost ? getFileName(relatedPost) : log.documentName || "N/A",
-        fileType: relatedPost ? getFileType(relatedPost) : log.documentType || "Unknown"
+        fileName,
+        displayName: truncateName(fileName, "list")
       };
     });
-  }, [safeLogs, files]);
+  }, [safeLogs]);
 
   // Filter and sort logs
   const processedLogs = useMemo(() => {
@@ -170,8 +141,7 @@ const AuditLog = () => {
         (log) =>
           (log.user?.email && log.user.email.toLowerCase().includes(term)) ||
           (log.action && log.action.toLowerCase().includes(term)) ||
-          (log.fileName && log.fileName.toLowerCase().includes(term)) ||
-          (log.fileType && log.fileType.toLowerCase().includes(term))
+          (log.fileName && log.fileName.toLowerCase().includes(term))
       );
     }
 
@@ -205,11 +175,6 @@ const AuditLog = () => {
         else if (sortConfig.key === "userEmail") {
           aValue = a.user?.email || "";
           bValue = b.user?.email || "";
-        }
-        // Handle file type sorting
-        else if (sortConfig.key === "fileType") {
-          aValue = a.fileType;
-          bValue = b.fileType;
         }
         // Handle direct properties
         else {
@@ -351,7 +316,7 @@ const AuditLog = () => {
 
       {/* Stats Cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={4}>
           <Card elevation={2}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -363,7 +328,7 @@ const AuditLog = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={4}>
           <Card elevation={2}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -375,19 +340,7 @@ const AuditLog = () => {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={2}>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Unique Users
-              </Typography>
-              <Typography variant="h5" component="div">
-                {new Set(safeLogs.map((log) => log.user?.email)).size}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={12} sm={6} md={4}>
           <Card elevation={2}>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -411,7 +364,7 @@ const AuditLog = () => {
         }}
       >
         <TextField
-          placeholder="Search by user, action, or file name..."
+          placeholder="Search by action or file name..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           sx={{ flexGrow: 1 }}
@@ -500,22 +453,6 @@ const AuditLog = () => {
               <TableRow sx={{ backgroundColor: theme.palette.grey[50] }}>
                 <TableCell>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <strong>User</strong>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleSort("userEmail")}
-                    >
-                      <Sort
-                        fontSize="small"
-                        color={
-                          sortConfig.key === "userEmail" ? "primary" : "inherit"
-                        }
-                      />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
                     <strong>Action</strong>
                     <IconButton
                       size="small"
@@ -548,22 +485,6 @@ const AuditLog = () => {
                 </TableCell>
                 <TableCell>
                   <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <strong>File Type</strong>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleSort("fileType")}
-                    >
-                      <Sort
-                        fontSize="small"
-                        color={
-                          sortConfig.key === "fileType" ? "primary" : "inherit"
-                        }
-                      />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
                     <strong>Timestamp</strong>
                     <IconButton
                       size="small"
@@ -586,7 +507,6 @@ const AuditLog = () => {
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((log, index) => (
                     <TableRow key={log.id || index} hover>
-                      <TableCell>{log.user?.email || "Unknown"}</TableCell>
                       <TableCell>
                         <Chip
                           label={log.action || "N/A"}
@@ -610,15 +530,9 @@ const AuditLog = () => {
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
                         }}
+                        title={log.fileName}
                       >
-                        {truncateName(log.fileName, "list")}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={log.fileType}
-                          size="small"
-                          variant="outlined"
-                        />
+                        {log.displayName}
                       </TableCell>
                       <TableCell>
                         {log.timestamp
@@ -629,7 +543,7 @@ const AuditLog = () => {
                   ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                  <TableCell colSpan={3} align="center" sx={{ py: 4 }}>
                     <Typography variant="body1" color="textSecondary">
                       No audit logs found
                     </Typography>

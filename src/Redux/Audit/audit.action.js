@@ -1,4 +1,3 @@
- 
 import { api } from "../../config/Api";
 import {
   GET_AUDIT_LOGS_REQUEST,
@@ -10,11 +9,11 @@ import {
   CLEAR_AUDIT_ERROR
 } from "./audit.action.Type";
 
-// Get audit logs for current user
+// Get audit logs for current user only
 export const getAuditLogsAction = () => async (dispatch) => {
   dispatch({ type: GET_AUDIT_LOGS_REQUEST });
   try {
-    const { data } = await api.get("/api/audit-logs");
+    const { data } = await api.get("/api/audit-logs/current-user");
     dispatch({ type: GET_AUDIT_LOGS_SUCCESS, payload: data });
     return { success: true, data };
   } catch (error) {
@@ -27,15 +26,11 @@ export const getAuditLogsAction = () => async (dispatch) => {
   }
 };
 
-// Create a new audit log entry
+// Create a new audit log entry for current user
 export const createAuditLogAction = (logData) => async (dispatch) => {
   dispatch({ type: CREATE_AUDIT_LOG_REQUEST });
   try {
-    const { data } = await api.post("/api/audit-logs", logData, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const { data } = await api.post("/api/audit-logs", logData);
     dispatch({ type: CREATE_AUDIT_LOG_SUCCESS, payload: data });
     return { success: true, data };
   } catch (error) {
