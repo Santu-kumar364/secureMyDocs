@@ -23,7 +23,7 @@ public interface PostService {
 
     void deletePost(Integer postId) throws ResourceNotFoundException;
 
-    List<Post> findAllOtpProtectedPosts();
+   
 
     Post updatePostOtpProtection(Post post, String otpCode) throws ResourceNotFoundException, OTPException;
 }

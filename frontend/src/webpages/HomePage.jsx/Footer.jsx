@@ -37,7 +37,7 @@ const Footer = () => {
           width: "100%",
           px: { xs: 2, sm: 3 },
           marginLeft: { md: "280px" },
-          width: { md: "calc(100% - 280px)" },
+           
         }}
       >
         <Grid container spacing={4} justifyContent="center">
