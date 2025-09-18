@@ -54,8 +54,10 @@ A full-stack secure document management system with client-side encryption, OTP 
 ### 📧 OTP & Sharing Flow  
 <img width="400" alt="OTP Sent" src="https://github.com/user-attachments/assets/b11e5966-5e3c-4db4-81b5-96fdbbf97080" />
 
-|                                                                                             |
-|---------------------------------------------------------------------------------------------|
-| **Share Link** | **Copy Generated Share Link** |
-| <img width="600" src="https://github.com/user-attachments/assets/1a19bd52-2abb-4d66-b28b-52bd184775c7" /> | <img width="600" src="https://github.com/user-attachments/assets/f81bd564-d0d8-41b0-be24-5bc36332c6b8" /> |
+|### 📧 OTP & Sharing Flow  
+<img width="400" alt="OTP Sent" src="https://github.com/user-attachments/assets/b11e5966-5e3c-4db4-81b5-96fdbbf97080" />
 
+<div style="display: flex; gap: 10px;">
+  <img width="600" alt="Share Link" src="https://github.com/user-attachments/assets/1a19bd52-2abb-4d66-b28b-52bd184775c7" />
+  <img width="600" alt="Copy Generated Share Link" src="https://github.com/user-attachments/assets/f81bd564-d0d8-41b0-be24-5bc36332c6b8" />
+</div>
