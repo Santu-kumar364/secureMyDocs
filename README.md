@@ -25,10 +25,10 @@ A full-stack secure document management system with client-side encryption, OTP 
 ## 📸 Screenshots
 
 ### 🔐 Login & Register  
-![Login Page](screenshots/login.png)  
-![Register Page](screenshots/register.png)
-<img width="1920" height="1080" alt="Screenshot 2025-09-18 154434" src="https://github.com/user-attachments/assets/5e749f72-9e69-4e7c-bed8-81e85ac74075" />
-<img width="1920" height="1080" alt="Screenshot 2025-09-18 154450" src="https://github.com/user-attachments/assets/fa5c69ec-dbbe-4162-b643-a7be9406ae27" />
+![Login Page](<img width="1920" height="1080" alt="Screenshot 2025-09-18 154450" src="https://github.com/user-attachments/assets/fa5c69ec-dbbe-4162-b643-a7be9406ae27" />)  
+
+![Register Page](<img width="1920" height="1080" alt="Screenshot 2025-09-18 154434" src="https://github.com/user-attachments/assets/5e749f72-9e69-4e7c-bed8-81e85ac74075" />)
+
 
 ### 📂 Dashboard  
 ![Dashboard](screenshots/dashboard.png)
