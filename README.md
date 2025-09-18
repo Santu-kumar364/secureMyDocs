@@ -45,11 +45,6 @@ A full-stack secure document management system with client-side encryption, OTP 
 
 ---
 
-### 🔗 Sharing Modal with OTP  
-<img src="https://github.com/user-attachments/assets/f81bd564-d0d8-41b0-be24-5bc36332c6b8" alt="Sharing Modal" width="100%"/>
-
----
-
 ### 📜 Audit Logs  
 <img src="https://github.com/user-attachments/assets/8c1a8723-8b62-4632-ac71-78b2b2a28618" alt="Audit Logs" width="100%"/>
 
