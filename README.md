@@ -1,3 +1,27 @@
+# SecureMyDocs 🔒
+
+A full-stack secure document management system with client-side encryption, OTP protection, and secure sharing capabilities.
+
+![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.1+-6DB33F?logo=springboot)
+![React](https://img.shields.io/badge/React-18.2+-61DAFB?logo=react)
+![Vite](https://img.shields.io/badge/Vite-4.3+-646CFF?logo=vite)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql)
+![Tailwind](https://img.shields.io/badge/Tailwind-3.3+-06B6D4?logo=tailwindcss)
+![MUI](https://img.shields.io/badge/MUI-5.14+-007FFF?logo=mui)
+
+## ✨ Features
+
+- **🔐 Zero-Knowledge Encryption** - Files encrypted client-side before upload  
+- **📱 OTP Protection** - Enable/disable one-time passwords per file  
+- **🔗 Secure Sharing** - Generate shareable links with access control  
+- **🔄 Full CRUD Operations** - Create, read, update, delete documents  
+- **🎨 Modern UI** - Built with Tailwind CSS & Material-UI  
+- **👮‍♂️ JWT Authentication** - Secure user sessions  
+- **📊 Real-time Updates** - Live document status and sharing management  
+
+---
+
 ## 📸 Screenshots
 
 ### 🔐 Login & Register  
@@ -27,8 +51,10 @@
 <img width="800" alt="Preview Page" src="https://github.com/user-attachments/assets/de479ac8-dbcb-44da-9528-53f9a53b804b" />
 
 ---
-
 ### 📧 OTP & Sharing Flow  
 <img width="400" alt="OTP Sent" src="https://github.com/user-attachments/assets/b11e5966-5e3c-4db4-81b5-96fdbbf97080" />
-<img width="600" alt="Share Link" src="https://github.com/user-attachments/assets/1a19bd52-2abb-4d66-b28b-52bd184775c7" />
-<img width="600" alt="Copy Generated Share Link" src="https://github.com/user-attachments/assets/f81bd564-d0d8-41b0-be24-5bc36332c6b8" />
+
+<div style="display: flex; gap: 10px;">
+  <img width="600" alt="Share Link" src="https://github.com/user-attachments/assets/1a19bd52-2abb-4d66-b28b-52bd184775c7" />
+  <img width="600" alt="Copy Generated Share Link" src="https://github.com/user-attachments/assets/f81bd564-d0d8-41b0-be24-5bc36332c6b8" />
+</div>
